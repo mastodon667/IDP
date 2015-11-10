@@ -11,46 +11,62 @@ vocabulary V {
     Verplicht(Vak,VakGroep)
     InVakGroep(Vak,VakGroep)
     InFase(Vak,Fase)
-    Geselecteerd(VakGroep)
     Geselecteerd(Vak,Fase)
+	NietGeselecteerd(Vak)
     
     HeeftNaam(Vak):VakNaam
-    partial MinAantalStudiepunten(VakGroep):Studiepunten
-    partial MaxAantalStudiepunten(VakGroep):Studiepunten
+    MinAantalStudiepunten(VakGroep):Studiepunten
+    MaxAantalStudiepunten(VakGroep):Studiepunten
     AantalStudiepunten(Vak):Studiepunten
+    GeselecteerdAantalStudiepuntenPerVakGroep(VakGroep):Studiepunten
+    GeselecteerdAantalStudiepuntenPerSemester(Semester,Fase):Studiepunten
     InSemester(Vak):Semester
 }
 
 
 theory T : V {
-    //Er moet exact 1 opleiding geselecteerd worden.
-    ?1vg[VakGroep] : IsType(vg,Opleiding) & Geselecteerd(vg).
+    //Alle verplichte vakken van een opleiding moeten geselecteerd worden.
+    !vg[VakGroep],v[Vak] : IsType(vg,Opleiding) & Verplicht(v,vg) => ?1f[Fase] : InFase(v,f) & Geselecteerd(v,f). 
     
-    //Als er specialisaties bestaan, moet er exact 1 specialisatie geselecteerd worden.
-    !vg[VakGroep] : IsType(vg,Specialisatie) => ?1vg1[VakGroep] : IsType(vg1,Specialisatie) & Geselecteerd(vg1).
+    //Als er specialisaties bestaan, moeten voor minstens 1 specialisatie alle verplichte vakken geselecteerd worden.
+    !vg[VakGroep] : IsType(vg,Specialisatie) => ?vg1[VakGroep] : IsType(vg1,Specialisatie) & !v[Vak] : Verplicht(v,vg1) => ?1f[Fase] : InFase(v,f) & Geselecteerd(v,f).
     
-    //Als er bachelor verbredende pakketten bestaan, moet er exact 1 pakket geselecteerd worden.
-    !vg[VakGroep] : IsType(vg,Bachelor_Verbredend) => ?1vg1[VakGroep] : IsType(vg1,Bachelor_Verbredend) & Geselecteerd(vg1).
+    //Als er bachelor verbredende pakketten bestaan, moeten voor minstens 1 pakket alle verplichte vakken geselecteerd worden.
+    !vg[VakGroep] : IsType(vg,Bachelor_Verbredend) => ?vg1[VakGroep] : IsType(vg1,Bachelor_Verbredend) & !v[Vak] : Verplicht(v,vg1) => ?1f[Fase] : InFase(v,f) & Geselecteerd(v,f).
     
-    //De vakgroepen AVO en verdere specialisatie kan je niet selecteren. 
-	!vg[VakGroep] : IsType(vg,AVO) | IsType(vg,Verdere_Specialisatie) => ~Geselecteerd(vg).
+    !vg[VakGroep] : IsType(vg,Opleiding) => GeselecteerdAantalStudiepuntenPerVakGroep(vg) = sum{v[Vak], sp[Studiepunten],f[Fase] : Geselecteerd(v,f) & AantalStudiepunten(v)=sp : sp }.
     
-    //Als je een vakgroep selecteerd, moeten alle verplichte vakken voor die vakgroep ook geselecteerd worden.
-    !vg[VakGroep],v[Vak] : Geselecteerd(vg) & Verplicht(v,vg) => ?1f[Fase] : InFase(v,f) & Geselecteerd(v,f).
+    !vg[VakGroep] : IsType(vg,Verdere_Specialisatie) => GeselecteerdAantalStudiepuntenPerVakGroep(vg) = sum{v[Vak], sp[Studiepunten],f[Fase], vg1[VakGroep] : (InVakGroep(v,vg) | (InVakGroep(v,vg1) & IsType(vg1,Specialisatie))) & Geselecteerd(v,f) & AantalStudiepunten(v)=sp : sp }.
+    
+    !vg[VakGroep] : IsType(vg,AVO) => GeselecteerdAantalStudiepuntenPerVakGroep(vg) = sum{v[Vak], sp[Studiepunten],f[Fase] : InVakGroep(v,vg) & Geselecteerd(v,f) & AantalStudiepunten(v)=sp : sp }.
+    
+    !vg[VakGroep] : IsType(vg,Specialisatie) | IsType(vg,Bachelor_Verbredend) => GeselecteerdAantalStudiepuntenPerVakGroep(vg) = 0.
     
     //Het totaal aantal studiepunten van de geselecteerde vakken uit een specifieke vakgroep moet tussen het minimum en maximum aantal studiepunten liggen van diezelfde vakgroep.
-    !vg[VakGroep] : MaxAantalStudiepunten(vg) > 0 => MinAantalStudiepunten(vg) =< sum{v[Vak],f[Fase],s[Studiepunten] : InVakGroep(v,vg) & Geselecteerd(v,f) & AantalStudiepunten(v)=s : s} =< MaxAantalStudiepunten(vg).
+    !vg[VakGroep] : MaxAantalStudiepunten(vg) > 0 => MinAantalStudiepunten(vg) =< GeselecteerdAantalStudiepuntenPerVakGroep(vg) =< MaxAantalStudiepunten(vg).
     
     //Het totaal aantal studiepunten van de geselecteerde vakken per fase moet tussen de 60 en 66 liggen.
     !f[Fase] : 60 =< sum{v[Vak],s[Studiepunten] : Geselecteerd(v,f) & AantalStudiepunten(v)=s : s} =< 66.
+    
+    !s[Semester],f[Fase] : GeselecteerdAantalStudiepuntenPerSemester(s,f) = sum{v[Vak],sp[Studiepunten],vg[VakGroep] : InVakGroep(v,vg) & IsType(vg,Opleiding) & InSemester(v)=s & Geselecteerd(v,f) & AantalStudiepunten(v)=sp : sp}.
+    
+    !v[Vak] : NietGeselecteerd(v) => ~?f[Fase] : Geselecteerd(v,f).
 }
 
 term O : V {
-    sum{f[Fase], t[Studiepunten] : abs(sum{v[Vak], s[Studiepunten] : Geselecteerd(v,f) & AantalStudiepunten(v)=s & InSemester(v)=Eerste: s} - sum{v[Vak], s[Studiepunten] : Geselecteerd(v,f) & AantalStudiepunten(v)=s & InSemester(v)=Tweede: s})=t : t}
+    sum{ f[Fase],t[Studiepunten] : abs(sum{ sp[Studiepunten] : GeselecteerdAantalStudiepuntenPerSemester(Eerste,f)=sp : sp } - sum{ sp[Studiepunten] : GeselecteerdAantalStudiepuntenPerSemester(Tweede,f)=sp : sp })=t : t}
+}
+
+vocabulary V_out {
+    extern V::Geselecteerd/2
+    extern V::AantalStudiepunten/1:1
 }
 
 procedure main() {
-    print(minimize(T,S,O)[0])
+    stdoptions.nbmodels = 10
+    printmodels(modelexpand(T,S,V_out))
+    //print(#sols.." solutions found.")
+    //print(minimize(T,S,O)[0])
 }
 
 include "DomainTI.idp"
