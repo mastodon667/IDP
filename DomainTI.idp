@@ -13,7 +13,4 @@ InSemester<ct> = {H04I4A-> Eerste;G0G88A-> Jaar;H04K5A-> Eerste;H04L5A-> Eerste;
 MinAantalStudiepunten<ct> = {Master_in_de_Toegepaste_Informatica-> 60;Software_ontwikkeling_en_Gedistribueerde_Systemen-> 0;Multimedia-> 0;Artificiele_Intelligentie-> 0;Verdere-> 0;Algemeen_Vormend-> 0;}
 MaxAantalStudiepunten<ct> = {Master_in_de_Toegepaste_Informatica-> 66;Software_ontwikkeling_en_Gedistribueerde_Systemen-> 0;Multimedia-> 0;Artificiele_Intelligentie-> 0;Verdere-> 0;Algemeen_Vormend-> 0;}
 AantalStudiepunten<ct> = {H04I4A-> 6;G0G88A-> 18;H04K5A-> 4;H04L5A-> 6;G0K32A-> 3;H09B5A-> 6;H03F0A-> 6;H04L2A-> 4;H04G4A-> 4;H04I0A-> 5;G0Q55A-> 6;G0Q66C-> 3;H04I2A-> 4;G0B36A-> 4;H07Z5A-> 3;H03F7A-> 6;H05B9B-> 3;H02A5A-> 4;H09J2A-> 6;H02D2A-> 4;H02C1A-> 4;H02C8A-> 4;H02A8A-> 4;H0T25A-> 3;H02B1A-> 4;G0B34B-> 6;H02C3A-> 4;H02C6A-> 4;G0B23A-> 6;G0B01A-> 4;D0I69A-> 6;G0K34A-> 4;C07I6A-> 4;}
-Geselecteerd<ct> = { G0G88A,1; G0K32A,1; H04I4A,1; H04K5A,1; H04L5A,1; H09B5A,1 }
-NietGeselecteerd = { H02C8A; H02B1A; D0I69A; G0B23A; }
 }
-
