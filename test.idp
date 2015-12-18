@@ -1,8 +1,8 @@
 structure S : V {
-    Fase = {1..1}
+	Fase = {1..1}
 Vak = {H04I4A;G0G88A;H04K5A;H04L5A;G0K32A;H09B5A;H03F0A;H04L2A;H04G4A;H04I0A;G0Q55A;G0Q66C;H04I2A;G0B36A;H07Z5A;H03F7A;H05B9B;H02A5A;H09J2A;H02D2A;H02C1A;H02C8A;H02A8A;H0T25A;H02B1A;G0B34B;H02C3A;H02C6A;G0B23A;G0B01A;D0I69A;G0K34A;C07I6A;}
 VakNaam = {Gedistribueerde_Systemen;Masterproef;Development_of_Secure_Software;Vergelijkende_studie_van_Imperatieve_Programmeertalen;Vereisteanalyse_voor_complexe_softwaresystemen;Software_Architectuur;Technisch_wetenschappelijke_software;Software_for_Real_time_and_Embedded_Systems;Security_of_Network_and_Computer_Infrastructure;Internet_Infrastructure;Fundamenten_van_mens_machine_interactie;Fundamenten_van_Computergrafiek;Informatie_visualisatie;Computergrafiek_2;Computergrafiek_project;Wavelets;Advanced_Platform_Architectures_and_Mapping_Methods_for_Embedded_Applications;Computer_Vision;Pattern_Recognition_and_Image_Interpretation;Uncertainty_in_Artificial_Intelligence;Machine_Learning_and_Inductive_Inference;Text_based_Information_Retrieval;Advanced_Programming_Languages_for_AI;Machine_Learning_Project;Natural_Language_Processing;Knowledge_and_the_Web;Knowledge_Representation;Data_Mining;Modelleren_van_Complexe_Systemen;Intellectual_Property_Management;ICT_Service_Management;Geschiedenis_van_de_Informatica;ICT_recht;}
-VakGroep = {Master_in_de_Toegepaste_Informatica;Algemeen_Vormend;Verdere;Software_ontwikkeling_en_Gedistribueerde_Systemen;Multimedia;Artificiele_Intelligentie;}
+VakGroep = {Master_in_de_Toegepaste_Informatica;Software_ontwikkeling_en_Gedistribueerde_Systemen;Multimedia;Artificiele_Intelligentie;Verdere;Algemeen_Vormend;}
 Studiepunten = {0..66}
 IsType = {Master_in_de_Toegepaste_Informatica,Opleiding;Software_ontwikkeling_en_Gedistribueerde_Systemen,Specialisatie;Multimedia,Specialisatie;Artificiele_Intelligentie,Specialisatie;Verdere,Verdere_Specialisatie;Algemeen_Vormend,AVO;}
 Verplicht = {H04I4A,Master_in_de_Toegepaste_Informatica;G0G88A,Master_in_de_Toegepaste_Informatica;H04K5A,Software_ontwikkeling_en_Gedistribueerde_Systemen;H04L5A,Software_ontwikkeling_en_Gedistribueerde_Systemen;G0K32A,Software_ontwikkeling_en_Gedistribueerde_Systemen;H09B5A,Software_ontwikkeling_en_Gedistribueerde_Systemen;G0Q55A,Multimedia;G0Q66C,Multimedia;H04I2A,Multimedia;G0B36A,Multimedia;H07Z5A,Multimedia;H02D2A,Artificiele_Intelligentie;H02C1A,Artificiele_Intelligentie;H02C8A,Artificiele_Intelligentie;H02A8A,Artificiele_Intelligentie;H0T25A,Artificiele_Intelligentie;}
@@ -13,7 +13,6 @@ InSemester<ct> = {H04I4A-> Eerste;G0G88A-> Jaar;H04K5A-> Eerste;H04L5A-> Eerste;
 MinAantalStudiepunten<ct> = {Master_in_de_Toegepaste_Informatica-> 60;Software_ontwikkeling_en_Gedistribueerde_Systemen-> 0;Multimedia-> 0;Artificiele_Intelligentie-> 0;Verdere-> 0;Algemeen_Vormend-> 0;}
 MaxAantalStudiepunten<ct> = {Master_in_de_Toegepaste_Informatica-> 66;Software_ontwikkeling_en_Gedistribueerde_Systemen-> 0;Multimedia-> 0;Artificiele_Intelligentie-> 0;Verdere-> 0;Algemeen_Vormend-> 0;}
 AantalStudiepunten<ct> = {H04I4A-> 6;G0G88A-> 18;H04K5A-> 4;H04L5A-> 6;G0K32A-> 3;H09B5A-> 6;H03F0A-> 6;H04L2A-> 4;H04G4A-> 4;H04I0A-> 5;G0Q55A-> 6;G0Q66C-> 3;H04I2A-> 4;G0B36A-> 4;H07Z5A-> 3;H03F7A-> 6;H05B9B-> 3;H02A5A-> 4;H09J2A-> 6;H02D2A-> 4;H02C1A-> 4;H02C8A-> 4;H02A8A-> 4;H0T25A-> 3;H02B1A-> 4;G0B34B-> 6;H02C3A-> 4;H02C6A-> 4;G0B23A-> 6;G0B01A-> 4;D0I69A-> 6;G0K34A-> 4;C07I6A-> 4;}
-Geselecteerd<ct> = { G0G88A,1; G0K32A,1; H04I4A,1; H04K5A,1; H04L5A,1; H09B5A,1 }
-NietGeselecteerd = { H02C8A; H02B1A; D0I69A; G0B23A; }
+Geselecteerd<ct> = {H04I4A,1;G0G88A,1;}
+NietGeselecteerd = {H04K5A;G0Q55A;H02D2A;}
 }
-

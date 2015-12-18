@@ -53,20 +53,41 @@ theory T : V {
     !v[Vak] : NietGeselecteerd(v) => ~?f[Fase] : Geselecteerd(v,f).
 }
 
-term O : V {
+term T1 : V {
     sum{ f[Fase],t[Studiepunten] : abs(sum{ sp[Studiepunten] : GeselecteerdAantalStudiepuntenPerSemester(Eerste,f)=sp : sp } - sum{ sp[Studiepunten] : GeselecteerdAantalStudiepuntenPerSemester(Tweede,f)=sp : sp })=t : t}
+}
+
+term T2 : V {
+    sum{ vg t : GeselecteerdAantalStudiepuntenPerVakGroep(vg)=t & IsType(vg,Opleiding) : t}
 }
 
 vocabulary V_out {
     extern V::Geselecteerd/2
+    extern V::NietGeselecteerd/1
     extern V::AantalStudiepunten/1:1
+    extern V::GeselecteerdAantalStudiepuntenPerVakGroep/1:1
 }
+
+query Q : V {
+    { vg sp : GeselecteerdAantalStudiepuntenPerVakGroep(vg) = sp }
+}
+
+query Q1 : V {
+    { v : AantalStudiepunten(v) > 10 }
+}
+
 
 procedure main() {
-    stdoptions.nbmodels = 10
-    printmodels(modelexpand(T,S,V_out))
+    //stdoptions.nbmodels = 10
+    //printmodels(modelexpand(T,S))
     //print(#sols.." solutions found.")
     //print(minimize(T,S,O)[0])
+    //models = modelexpand(T,S)
+    //print(query(Q,models[1]))
+    //print(sat(T,S))
+    //unsatstructure(T,S)
+    print(unsatstructure(T,S))
+    //print(unsatstructure(T,S,{Geselecteerd,NietGeselecteerd}))
 }
 
-include "DomainTI.idp"
+include "test.idp"
