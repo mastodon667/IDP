@@ -1,0 +1,106 @@
+vocabulary V {
+    //ISP
+    type Fase isa int
+    type Vak
+    type VakNaam
+    type VakGroepType constructed from {AVO,Verdere_Specialisatie,Opleiding,Bachelor_Verbredend,Specialisatie}
+    type VakGroep 
+    type Studiepunten isa int
+    type Semester constructed from {Eerste,Tweede,Jaar}
+    
+    IsType(VakGroep,VakGroepType)
+    Verplicht(Vak,VakGroep)
+    InVakGroep(Vak,VakGroep)
+    InFase(Vak,Fase)
+    Geselecteerd(Vak,Fase)
+	NietGeselecteerd(Vak)
+    
+    HeeftNaam(Vak):VakNaam
+    MinAantalStudiepunten(VakGroep):Studiepunten
+    MaxAantalStudiepunten(VakGroep):Studiepunten
+    AantalStudiepunten(Vak):Studiepunten
+    GeselecteerdAantalStudiepuntenPerVakGroep(VakGroep):Studiepunten
+    GeselecteerdAantalStudiepuntenPerSemester(Semester,Fase):Studiepunten
+    InSemester(Vak):Semester
+    
+    //SCHEDULE
+    type Slot isa int
+    type Les
+    
+   	heeftLes(Vak,Les)
+    isSchaduwVak(Vak,Vak)
+    start(Les,Slot)
+    eindigt(Les,Slot)
+    overlap(Les,Les) : int
+}
+
+
+theory T : V {
+     //ISP
+    !vg[VakGroep],v[Vak] : IsType(vg,Opleiding) & Verplicht(v,vg) => ?1f[Fase] : InFase(v,f) & Geselecteerd(v,f). 
+    !vg[VakGroep] : IsType(vg,Specialisatie) => ?vg1[VakGroep] : IsType(vg1,Specialisatie) & !v[Vak] : Verplicht(v,vg1) => ?1f[Fase] : InFase(v,f) & Geselecteerd(v,f).
+    !vg[VakGroep] : IsType(vg,Bachelor_Verbredend) => ?vg1[VakGroep] : IsType(vg1,Bachelor_Verbredend) & !v[Vak] : Verplicht(v,vg1) => ?1f[Fase] : InFase(v,f) & Geselecteerd(v,f).
+    !vg[VakGroep] : IsType(vg,Opleiding) => GeselecteerdAantalStudiepuntenPerVakGroep(vg) = sum{v[Vak], sp[Studiepunten],f[Fase] : Geselecteerd(v,f) & AantalStudiepunten(v)=sp : sp }.
+    !vg[VakGroep] : IsType(vg,Verdere_Specialisatie) => GeselecteerdAantalStudiepuntenPerVakGroep(vg) = sum{v[Vak], sp[Studiepunten],f[Fase], vg1[VakGroep] : (InVakGroep(v,vg) | (InVakGroep(v,vg1) & IsType(vg1,Specialisatie))) & Geselecteerd(v,f) & AantalStudiepunten(v)=sp : sp }.
+    !vg[VakGroep] : IsType(vg,AVO) => GeselecteerdAantalStudiepuntenPerVakGroep(vg) = sum{v[Vak], sp[Studiepunten],f[Fase] : InVakGroep(v,vg) & Geselecteerd(v,f) & AantalStudiepunten(v)=sp : sp }.
+    !vg[VakGroep] : IsType(vg,Specialisatie) | IsType(vg,Bachelor_Verbredend) => GeselecteerdAantalStudiepuntenPerVakGroep(vg) = 0.
+    !vg[VakGroep] : MaxAantalStudiepunten(vg) > 0 => MinAantalStudiepunten(vg) =< GeselecteerdAantalStudiepuntenPerVakGroep(vg) =< MaxAantalStudiepunten(vg).
+    !f[Fase] : 38 =< sum{v[Vak],s[Studiepunten] : Geselecteerd(v,f) & AantalStudiepunten(v)=s : s} =< 45.
+    !s[Semester],f[Fase] : GeselecteerdAantalStudiepuntenPerSemester(s,f) = sum{v[Vak],sp[Studiepunten],vg[VakGroep] : InVakGroep(v,vg) & IsType(vg,Opleiding) & InSemester(v)=s & Geselecteerd(v,f) & AantalStudiepunten(v)=sp : sp}.
+    !v[Vak] : NietGeselecteerd(v) => ~?f[Fase] : Geselecteerd(v,f).
+    
+    //SCHEDULE
+    !v1[Vak],v2[Vak],l[Les] : isSchaduwVak(v1,v2) & heeftLes(v1,l) => heeftLes(v2,l).
+    !l1[Les],l2[Les] : l1 = l2 => overlap(l1,l2) = 0.
+    !l1[Les],l2[Les],v1[Vak],v2[Vak] : l1 ~= l2 & (?f1[Fase],f2[Fase] : Geselecteerd(v1,f1) & Geselecteerd(v2,f2) ) => overlap(l1,l2) = max{ o : o = 0 | o = (min{e[Slot] : eindigt(l1,e) | eindigt(l2,e) : e} - max{s[Slot] : start(l1,s) | start(l2,s) : s}) : o}.
+}
+
+Term O : V {
+    sum{ l1[Les],l2[Les],o : overlap(l1,l2) = o : o }
+}
+
+Structure S : V {
+    //ISP
+    Fase = {1..1}
+Vak = {H04I4A;G0G88A;H04K5A;H04L5A;H03F0A;G0Q55A;G0Q66C;H03F7A;}
+    
+VakNaam = {Gedistribueerde_Systemen;Masterproef;Development_of_Secure_Software;Vergelijkende_studie_van_Imperatieve_Programmeertalen;Technisch_wetenschappelijke_software;Fundamenten_van_mens_machine_interactie;Fundamenten_van_Computergrafiek;Wavelets;}
+    
+VakGroep = {Master_in_de_Toegepaste_Informatica;Software_ontwikkeling_en_Gedistribueerde_Systemen;Multimedia;Algemeen_Vormend;Verdere;}
+    
+Studiepunten = {0..66}
+    
+IsType = {Master_in_de_Toegepaste_Informatica,Opleiding;Software_ontwikkeling_en_Gedistribueerde_Systemen,Specialisatie;Multimedia,Specialisatie;Algemeen_Vormend,AVO;Verdere,Verdere_Specialisatie;}
+    
+Verplicht = {H04I4A,Master_in_de_Toegepaste_Informatica;G0G88A,Master_in_de_Toegepaste_Informatica;H04K5A,Software_ontwikkeling_en_Gedistribueerde_Systemen;H04L5A,Software_ontwikkeling_en_Gedistribueerde_Systemen;G0Q55A,Multimedia;G0Q66C,Multimedia;}
+    
+InFase = {H04I4A,1;G0G88A,1;H04K5A,1;H04L5A,1;H03F0A,1;G0Q55A,1;G0Q66C,1;H03F7A,1;}
+    
+InVakGroep = {H04I4A,Master_in_de_Toegepaste_Informatica;G0G88A,Master_in_de_Toegepaste_Informatica;H04K5A,Software_ontwikkeling_en_Gedistribueerde_Systemen;H04L5A,Software_ontwikkeling_en_Gedistribueerde_Systemen;H03F0A,Software_ontwikkeling_en_Gedistribueerde_Systemen;G0Q55A,Multimedia;G0Q66C,Multimedia;H03F7A,Multimedia;}
+    
+HeeftNaam<ct> = {H04I4A-> Gedistribueerde_Systemen;G0G88A-> Masterproef;H04K5A-> Development_of_Secure_Software;H04L5A-> Vergelijkende_studie_van_Imperatieve_Programmeertalen;H03F0A-> Technisch_wetenschappelijke_software;G0Q55A-> Fundamenten_van_mens_machine_interactie;G0Q66C-> Fundamenten_van_Computergrafiek;H03F7A-> Wavelets;}
+    
+InSemester<ct> = {H04I4A-> Eerste;G0G88A-> Jaar;H04K5A-> Eerste;H04L5A-> Eerste;H03F0A-> Eerste;G0Q55A-> Eerste;G0Q66C-> Eerste;H03F7A-> Eerste;}
+    
+MinAantalStudiepunten<ct> = {Master_in_de_Toegepaste_Informatica-> 38;Software_ontwikkeling_en_Gedistribueerde_Systemen-> 0;Multimedia-> 0;Algemeen_Vormend-> 0;Verdere-> 0;}
+    
+MaxAantalStudiepunten<ct> = {Master_in_de_Toegepaste_Informatica-> 42;Software_ontwikkeling_en_Gedistribueerde_Systemen-> 0;Multimedia-> 0;Algemeen_Vormend-> 0;Verdere-> 0;}
+    
+AantalStudiepunten<ct> = {H04I4A-> 6;G0G88A-> 18;H04K5A-> 4;H04L5A-> 6;H03F0A-> 6;G0Q55A-> 6;G0Q66C-> 3;H03F7A-> 6;}
+    
+	//SCHEDULE
+	Les = { 53305395; 53308390; 53311983; 53311984; 53324884; 53354279; 53355514; 53355550; 53533480 }
+	Slot = { 1..130 }
+	eindigt = { 53305395,42; 53308390,120; 53311983,124; 53311984,72; 53324884,109; 53354279,36; 53355514,36; 53355550,36; 53533480,93 }
+	heeftLes = { G0Q55A,53311983; G0Q66C,53311984; H03F0A,53324884; H04I4A,53305395; H04I4A,53354279; H04I4A,53355514; H04I4A,53355550; H04K5A,53308390; H04K5A,53533480; }
+	start = { 53305395,37; 53308390,116; 53311983,116; 53311984,68; 53324884,105; 53354279,31; 53355514,31; 53355550,31; 53533480,89 }
+}
+
+
+procedure main() {
+    stdoptions.nbmodels = 0
+    sols = modelexpand(T,S)
+    print(#sols)
+    //printmodels(modelexpand(T,S))
+    //print(minimize(T,S,O)[0])
+}
