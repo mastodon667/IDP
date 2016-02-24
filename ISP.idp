@@ -47,9 +47,9 @@ theory T : V {
     
     //Het totaal aantal studiepunten van de geselecteerde vakken per fase moet tussen de 60 en 66 liggen.
     !f[Fase] : 60 =< sum{v[Vak],s[Studiepunten] : Geselecteerd(v,f) & AantalStudiepunten(v)=s : s} =< 66.
-    
+   	
     !s[Semester],f[Fase] : GeselecteerdAantalStudiepuntenPerSemester(s,f) = sum{v[Vak],sp[Studiepunten],vg[VakGroep] : InVakGroep(v,vg) & IsType(vg,Opleiding) & InSemester(v)=s & Geselecteerd(v,f) & AantalStudiepunten(v)=sp : sp}.
-    
+   
     !v[Vak] : NietGeselecteerd(v) => ~?f[Fase] : Geselecteerd(v,f).
 }
 
@@ -64,8 +64,8 @@ term T2 : V {
 vocabulary V_out {
     extern V::Geselecteerd/2
     extern V::NietGeselecteerd/1
-    extern V::AantalStudiepunten/1:1
-    extern V::GeselecteerdAantalStudiepuntenPerVakGroep/1:1
+    //extern V::AantalStudiepunten/1:1
+    //extern V::GeselecteerdAantalStudiepuntenPerVakGroep/1:1
 }
 
 query Q : V {
@@ -86,8 +86,9 @@ procedure main() {
     //print(query(Q,models[1]))
     //print(sat(T,S))
     //unsatstructure(T,S)
-    print(unsatstructure(T,S))
-    //print(unsatstructure(T,S,{Geselecteerd,NietGeselecteerd}))
+    //print(unsatstructure(T,S))
+    //print(unsatstructure(T,S,V_out))
+    print(onemodel(T,S))
 }
 
-include "test.idp"
+include "Test_Domain.idp"
