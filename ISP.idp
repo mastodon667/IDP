@@ -20,7 +20,11 @@ vocabulary V {
     AantalStudiepunten(Vak):Studiepunten
     GeselecteerdAantalStudiepuntenPerVakGroep(VakGroep):Studiepunten
     GeselecteerdAantalStudiepuntenPerSemester(Semester,Fase):Studiepunten
+    GeselecteerdAantalStudiepuntenTotaal : Studiepunten
+    VerschilPerFase(Fase) : Studiepunten
+    AbsoluutVerschilPerFase(Fase) : Studiepunten
     InSemester(Vak):Semester
+    Evenwicht : Studiepunten
 }
 
 
@@ -48,17 +52,25 @@ theory T : V {
     //Het totaal aantal studiepunten van de geselecteerde vakken per fase moet tussen de 60 en 66 liggen.
     !f[Fase] : 60 =< sum{v[Vak],s[Studiepunten] : Geselecteerd(v,f) & AantalStudiepunten(v)=s : s} =< 66.
    	
-    !s[Semester],f[Fase] : GeselecteerdAantalStudiepuntenPerSemester(s,f) = sum{v[Vak],sp[Studiepunten],vg[VakGroep] : InVakGroep(v,vg) & IsType(vg,Opleiding) & InSemester(v)=s & Geselecteerd(v,f) & AantalStudiepunten(v)=sp : sp}.
+    !s[Semester],f[Fase] : GeselecteerdAantalStudiepuntenPerSemester(s,f) = sum{v[Vak],sp[Studiepunten] : InSemester(v)=s & Geselecteerd(v,f) & AantalStudiepunten(v)=sp : sp}.
    
     !v[Vak] : NietGeselecteerd(v) => ~?f[Fase] : Geselecteerd(v,f).
+    
+    GeselecteerdAantalStudiepuntenTotaal = sum{v s f : Geselecteerd(v,f) & AantalStudiepunten(v) = s : s}.
+    
+    !f[Fase] : VerschilPerFase(f) = sum{ sp[Studiepunten] : GeselecteerdAantalStudiepuntenPerSemester(Eerste,f)=sp : sp } - sum{ sp[Studiepunten] : GeselecteerdAantalStudiepuntenPerSemester(Tweede,f)=sp : sp }.
+   	
+    !f[Fase] : abs(VerschilPerFase(f)) = AbsoluutVerschilPerFase(f).
+    
+    Evenwicht = sum{f sp : AbsoluutVerschilPerFase(f) = sp : sp}.
 }
 
 term T1 : V {
-    sum{ f[Fase],t[Studiepunten] : abs(sum{ sp[Studiepunten] : GeselecteerdAantalStudiepuntenPerSemester(Eerste,f)=sp : sp } - sum{ sp[Studiepunten] : GeselecteerdAantalStudiepuntenPerSemester(Tweede,f)=sp : sp })=t : t}
+    Evenwicht
 }
 
 term T2 : V {
-    sum{ vg t : GeselecteerdAantalStudiepuntenPerVakGroep(vg)=t & IsType(vg,Opleiding) : t}
+    GeselecteerdAantalStudiepuntenTotaal
 }
 
 vocabulary V_out {
@@ -68,27 +80,21 @@ vocabulary V_out {
     //extern V::GeselecteerdAantalStudiepuntenPerVakGroep/1:1
 }
 
-query Q : V {
-    { vg sp : GeselecteerdAantalStudiepuntenPerVakGroep(vg) = sp }
-}
-
-query Q1 : V {
-    { v : AantalStudiepunten(v) > 10 }
-}
-
 
 procedure main() {
-    //stdoptions.nbmodels = 10
+    stdoptions.nbmodels = 0
     //printmodels(modelexpand(T,S))
+    //sols = modelexpand(T,S)
     //print(#sols.." solutions found.")
-    //print(minimize(T,S,O)[0])
+    //printmodels(sols)
+    print(minimize(T,S,T2)[1])
     //models = modelexpand(T,S)
     //print(query(Q,models[1]))
     //print(sat(T,S))
     //unsatstructure(T,S)
     //print(unsatstructure(T,S))
     //print(unsatstructure(T,S,V_out))
-    print(onemodel(T,S))
+    //print(onemodel(T,S))
 }
 
-include "Test_Domain.idp"
+include "DomainTI.idp"

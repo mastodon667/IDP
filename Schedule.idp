@@ -1,0 +1,39 @@
+vocabulary V {
+    type Vak
+    //halfuur = 1 slot, 26 sloten/dag, 130 sloten/week
+    type Slot isa int
+    type Les
+    
+   	heeftLes(Vak,Les)
+    isSchaduwVak(Vak,Vak)
+    start(Les,Slot)
+    eindigt(Les,Slot)
+    overlap(Les,Les) : int
+}
+
+
+theory T : V {
+    !v1[Vak],v2[Vak],l[Les] : isSchaduwVak(v1,v2) & heeftLes(v1,l) => heeftLes(v2,l).
+    !l1[Les],l2[Les] : l1 = l2 => overlap(l1,l2) = 0.
+    !l1[Les],l2[Les] : l1 ~= l2 => overlap(l1,l2) = max{ o : o = 0 | o = (min{e[Slot] : eindigt(l1,e) | eindigt(l2,e) : e} - max{s[Slot] : start(l1,s) | start(l2,s) : s}) : o}.
+}
+
+Term O : V {
+    sum{ l1[Les],l2[Les],o : overlap(l1,l2) = o : o }
+}
+
+Structure S : V {
+  Les = { 53305395; 53308390; 53311797; 53311983; 53311984; 53324884; 53354279; 53355514; 53355550; 53533480 }
+  Slot = { 1..130 }
+  Vak = { "G0G88A"; "G0Q55A"; "G0Q66C"; "H03F0A"; "H04I4A"; "H04K5A"; "H04L2A"; "H04L5A" }
+  eindigt = { 53305395,42; 53308390,120; 53311797,57; 53311983,124; 53311984,72; 53324884,109; 53354279,36; 53355514,36; 53355550,36; 53533480,93 }
+  heeftLes = { "G0Q55A",53311983; "G0Q66C",53311984; "H03F0A",53324884; "H04I4A",53305395; "H04I4A",53354279; "H04I4A",53355514; "H04I4A",53355550; "H04K5A",53308390; "H04K5A",53533480; "H04L2A",53311797 }
+  start = { 53305395,37; 53308390,116; 53311797,53; 53311983,116; 53311984,68; 53324884,105; 53354279,31; 53355514,31; 53355550,31; 53533480,89 }
+}
+
+
+procedure main() {
+    stdoptions.nbmodels = 1
+    printmodels(modelexpand(T,S))
+    //print(minimize(T,S,O)[0])
+}

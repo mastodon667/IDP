@@ -1,0 +1,101 @@
+vocabulary V {
+    //ISP
+    type Fase isa int
+    type Vak
+    type VakGroepType constructed from {AVO,Verdere_Specialisatie,Opleiding,Bachelor_Verbredend,Specialisatie}
+    type VakGroep 
+    type Studiepunten isa int
+    type Rule isa int
+    
+    satisfied(Rule)
+    nbSatisfied:Rule
+    
+    //Rule1
+    //Rule2
+    //Rule3
+    //Rule4
+    //Rule5
+    
+    Fouten(VakGroep)
+    
+    IsType(VakGroep,VakGroepType)
+    Verplicht(Vak,VakGroep)
+    InVakGroep(Vak,VakGroep)
+    InFase(Vak,Fase)
+    Geselecteerd(Vak,Fase)
+	NietGeselecteerd(Vak)
+    
+    MinAantalStudiepunten(VakGroep):Studiepunten
+    MaxAantalStudiepunten(VakGroep):Studiepunten
+    AantalStudiepunten(Vak):Studiepunten
+    GeselecteerdAantalStudiepuntenPerVakGroep(VakGroep):Studiepunten
+}
+
+
+theory T : V {
+    //rule 1
+    satisfied(0) <=> !vg[VakGroep],v[Vak] : IsType(vg,Opleiding) & Verplicht(v,vg) => ?1f[Fase] : InFase(v,f) & Geselecteerd(v,f). 
+    //?b[Bool] : b = True <=> !vg[VakGroep],v[Vak] : IsType(vg,Opleiding) & Verplicht(v,vg) => ?1f[Fase] : InFase(v,f) & Geselecteerd(v,f). 
+    //rule 2
+    satisfied(1) <=> !vg[VakGroep] : IsType(vg,Specialisatie) => ?vg1[VakGroep] : IsType(vg1,Specialisatie) & !v[Vak] : Verplicht(v,vg1) => ?1f[Fase] : InFase(v,f) & Geselecteerd(v,f).
+    //rule 3
+    satisfied(2) <=> !vg[VakGroep] : IsType(vg,Bachelor_Verbredend) => ?vg1[VakGroep] : IsType(vg1,Bachelor_Verbredend) & !v[Vak] : Verplicht(v,vg1) => ?1f[Fase] : InFase(v,f) & Geselecteerd(v,f).
+
+    !vg[VakGroep] : IsType(vg,Opleiding) => GeselecteerdAantalStudiepuntenPerVakGroep(vg) = sum{v[Vak], sp[Studiepunten],f[Fase] : Geselecteerd(v,f) & AantalStudiepunten(v)=sp : sp }.
+    
+    !vg[VakGroep] : IsType(vg,Verdere_Specialisatie) => GeselecteerdAantalStudiepuntenPerVakGroep(vg) = sum{v[Vak], sp[Studiepunten],f[Fase], vg1[VakGroep] : (InVakGroep(v,vg) | (InVakGroep(v,vg1) & IsType(vg1,Specialisatie))) & Geselecteerd(v,f) & AantalStudiepunten(v)=sp : sp }.
+    
+    !vg[VakGroep] : IsType(vg,AVO) => GeselecteerdAantalStudiepuntenPerVakGroep(vg) = sum{v[Vak], sp[Studiepunten],f[Fase] : InVakGroep(v,vg) & Geselecteerd(v,f) & AantalStudiepunten(v)=sp : sp }.
+    //rule 4
+    satisfied(3) <=> !vg[VakGroep] : MaxAantalStudiepunten(vg) > 0 => MinAantalStudiepunten(vg) =< GeselecteerdAantalStudiepuntenPerVakGroep(vg) =< MaxAantalStudiepunten(vg).
+    
+    !vg[VakGroep] : MaxAantalStudiepunten(vg) > 0 & (MinAantalStudiepunten(vg) > GeselecteerdAantalStudiepuntenPerVakGroep(vg) | GeselecteerdAantalStudiepuntenPerVakGroep(vg) > MaxAantalStudiepunten(vg)) => Fouten(vg).
+    //optional extension, define rule to return which of the groups' rule was broken
+    //rule 5
+    satisfied(4) <=> !f[Fase] : 60 =< sum{v[Vak],s[Studiepunten] : Geselecteerd(v,f) & AantalStudiepunten(v)=s : s} =< 66.
+    
+    !vg[VakGroep] : IsType(vg,Opleiding) => GeselecteerdAantalStudiepuntenPerVakGroep(vg) = sum{v[Vak], sp[Studiepunten],f[Fase] : Geselecteerd(v,f) & AantalStudiepunten(v)=sp : sp }.
+    
+    !vg[VakGroep] : IsType(vg,Verdere_Specialisatie) => GeselecteerdAantalStudiepuntenPerVakGroep(vg) = sum{v[Vak], sp[Studiepunten],f[Fase], vg1[VakGroep] : (InVakGroep(v,vg) | (InVakGroep(v,vg1) & IsType(vg1,Specialisatie))) & Geselecteerd(v,f) & AantalStudiepunten(v)=sp : sp }.
+    
+    !vg[VakGroep] : IsType(vg,AVO) => GeselecteerdAantalStudiepuntenPerVakGroep(vg) = sum{v[Vak], sp[Studiepunten],f[Fase] : InVakGroep(v,vg) & Geselecteerd(v,f) & AantalStudiepunten(v)=sp : sp }.
+    
+    !vg[VakGroep] : IsType(vg,Specialisatie) | IsType(vg,Bachelor_Verbredend) => GeselecteerdAantalStudiepuntenPerVakGroep(vg) = 0. 
+    nbSatisfied = #{r : ~satisfied(r)}.
+}
+
+term O:V {
+    nbSatisfied
+}
+
+
+Structure S : V {
+    Rule = {0..4}
+    Fase = {1..1}
+Vak = {H04I4A;G0G88A;H04K5A;H04L5A;G0K32A;H09B5A;H03F0A;H04L2A;H04G4A;H04I0A;G0Q55A;G0Q66C;H04I2A;G0B36A;H07Z5A;H03F7A;H05B9B;H02A5A;H09J2A;H02D2A;H02C1A;H02C8A;H02A8A;H0T25A;H02B1A;G0B34B;H02C3A;H02C6A;G0B23A;G0B01A;D0I69A;G0K34A;C07I6A;}
+
+VakGroep = {Master_in_de_Toegepaste_Informatica;Software_ontwikkeling_en_Gedistribueerde_Systemen;Multimedia;Artificiele_Intelligentie;Verdere;Algemeen_Vormend;}
+Studiepunten = {0..66}
+IsType = {Master_in_de_Toegepaste_Informatica,Opleiding;Software_ontwikkeling_en_Gedistribueerde_Systemen,Specialisatie;Multimedia,Specialisatie;Artificiele_Intelligentie,Specialisatie;Verdere,Verdere_Specialisatie;Algemeen_Vormend,AVO;}
+Verplicht = {H04I4A,Master_in_de_Toegepaste_Informatica;G0G88A,Master_in_de_Toegepaste_Informatica;H04K5A,Software_ontwikkeling_en_Gedistribueerde_Systemen;H04L5A,Software_ontwikkeling_en_Gedistribueerde_Systemen;G0K32A,Software_ontwikkeling_en_Gedistribueerde_Systemen;H09B5A,Software_ontwikkeling_en_Gedistribueerde_Systemen;G0Q55A,Multimedia;G0Q66C,Multimedia;H04I2A,Multimedia;G0B36A,Multimedia;H07Z5A,Multimedia;H02D2A,Artificiele_Intelligentie;H02C1A,Artificiele_Intelligentie;H02C8A,Artificiele_Intelligentie;H02A8A,Artificiele_Intelligentie;H0T25A,Artificiele_Intelligentie;}
+InFase = {H04I4A,1;G0G88A,1;H04K5A,1;H04L5A,1;G0K32A,1;H09B5A,1;H03F0A,1;H04L2A,1;H04G4A,1;H04I0A,1;G0Q55A,1;G0Q66C,1;H04I2A,1;G0B36A,1;H07Z5A,1;H03F7A,1;H05B9B,1;H02A5A,1;H09J2A,1;H02D2A,1;H02C1A,1;H02C8A,1;H02A8A,1;H0T25A,1;H02B1A,1;G0B34B,1;H02C3A,1;H02C6A,1;G0B23A,1;G0B01A,1;D0I69A,1;G0K34A,1;C07I6A,1;}
+InVakGroep = {H04I4A,Master_in_de_Toegepaste_Informatica;G0G88A,Master_in_de_Toegepaste_Informatica;H04K5A,Software_ontwikkeling_en_Gedistribueerde_Systemen;H04L5A,Software_ontwikkeling_en_Gedistribueerde_Systemen;G0K32A,Software_ontwikkeling_en_Gedistribueerde_Systemen;H09B5A,Software_ontwikkeling_en_Gedistribueerde_Systemen;H03F0A,Software_ontwikkeling_en_Gedistribueerde_Systemen;H04L2A,Software_ontwikkeling_en_Gedistribueerde_Systemen;H04G4A,Software_ontwikkeling_en_Gedistribueerde_Systemen;H04I0A,Software_ontwikkeling_en_Gedistribueerde_Systemen;G0Q55A,Multimedia;G0Q66C,Multimedia;H04I2A,Multimedia;G0B36A,Multimedia;H07Z5A,Multimedia;H03F7A,Multimedia;H05B9B,Multimedia;H02A5A,Multimedia;H09J2A,Multimedia;H02D2A,Artificiele_Intelligentie;H02C1A,Artificiele_Intelligentie;H02C8A,Artificiele_Intelligentie;H02A8A,Artificiele_Intelligentie;H0T25A,Artificiele_Intelligentie;H02B1A,Artificiele_Intelligentie;G0B34B,Artificiele_Intelligentie;H02C3A,Artificiele_Intelligentie;H02C6A,Artificiele_Intelligentie;G0B23A,Algemeen_Vormend;G0B01A,Algemeen_Vormend;D0I69A,Algemeen_Vormend;G0K34A,Algemeen_Vormend;C07I6A,Algemeen_Vormend;}
+
+MinAantalStudiepunten<ct> = {Master_in_de_Toegepaste_Informatica-> 60;Software_ontwikkeling_en_Gedistribueerde_Systemen-> 0;Multimedia-> 0;Artificiele_Intelligentie-> 0;Verdere-> 0;Algemeen_Vormend-> 0;}
+MaxAantalStudiepunten<ct> = {Master_in_de_Toegepaste_Informatica-> 66;Software_ontwikkeling_en_Gedistribueerde_Systemen-> 0;Multimedia-> 0;Artificiele_Intelligentie-> 0;Verdere-> 0;Algemeen_Vormend-> 0;}
+AantalStudiepunten<ct> = {H04I4A-> 6;G0G88A-> 18;H04K5A-> 4;H04L5A-> 6;G0K32A-> 3;H09B5A-> 6;H03F0A-> 6;H04L2A-> 4;H04G4A-> 4;H04I0A-> 5;G0Q55A-> 6;G0Q66C-> 3;H04I2A-> 4;G0B36A-> 4;H07Z5A-> 3;H03F7A-> 6;H05B9B-> 3;H02A5A-> 4;H09J2A-> 6;H02D2A-> 4;H02C1A-> 4;H02C8A-> 4;H02A8A-> 4;H0T25A-> 3;H02B1A-> 4;G0B34B-> 6;H02C3A-> 4;H02C6A-> 4;G0B23A-> 6;G0B01A-> 4;D0I69A-> 6;G0K34A-> 4;C07I6A-> 4;}
+Geselecteerd<ct> = {H04I4A,1;G0G88A,1;}
+NietGeselecteerd = {}
+}
+
+
+procedure main() {
+    stdoptions.verbosity.solving=1
+    stdoptions.nbmodels = 0
+    //sols = modelexpand(T,S)
+    //print(#sols)
+    //printmodels(sols)
+    //printmodels(modelexpand(T,S))
+    print(minimize(T,S,O)[1])
+    //explainunsat(T,S)
+}

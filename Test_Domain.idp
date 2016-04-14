@@ -1,0 +1,30 @@
+structure S : V {
+    Fase = {1..1}
+Vak = {H04I4A;G0G88A;H04K5A;H04L5A;H03F0A;G0Q55A;G0Q66C;H03F7A;}
+    
+VakNaam = {Gedistribueerde_Systemen;Masterproef;Development_of_Secure_Software;Vergelijkende_studie_van_Imperatieve_Programmeertalen;Technisch_wetenschappelijke_software;Fundamenten_van_mens_machine_interactie;Fundamenten_van_Computergrafiek;Wavelets;}
+    
+VakGroep = {Master_in_de_Toegepaste_Informatica;Software_ontwikkeling_en_Gedistribueerde_Systemen;Multimedia;Algemeen_Vormend;Verdere;}
+    
+Studiepunten = {-66..66}
+    
+IsType = {Master_in_de_Toegepaste_Informatica,Opleiding;Software_ontwikkeling_en_Gedistribueerde_Systemen,Specialisatie;Multimedia,Specialisatie;Algemeen_Vormend,AVO;Verdere,Verdere_Specialisatie;}
+    
+Verplicht = {H04I4A,Master_in_de_Toegepaste_Informatica;G0G88A,Master_in_de_Toegepaste_Informatica;H04K5A,Software_ontwikkeling_en_Gedistribueerde_Systemen;H04L5A,Software_ontwikkeling_en_Gedistribueerde_Systemen;G0Q55A,Multimedia;G0Q66C,Multimedia;}
+    
+InFase = {H04I4A,1;G0G88A,1;H04K5A,1;H04L5A,1;H03F0A,1;G0Q55A,1;G0Q66C,1;H03F7A,1;}
+    
+InVakGroep = {H04I4A,Master_in_de_Toegepaste_Informatica;G0G88A,Master_in_de_Toegepaste_Informatica;H04K5A,Software_ontwikkeling_en_Gedistribueerde_Systemen;H04L5A,Software_ontwikkeling_en_Gedistribueerde_Systemen;H03F0A,Software_ontwikkeling_en_Gedistribueerde_Systemen;G0Q55A,Multimedia;G0Q66C,Multimedia;H03F7A,Multimedia;}
+    
+HeeftNaam<ct> = {H04I4A-> Gedistribueerde_Systemen;G0G88A-> Masterproef;H04K5A-> Development_of_Secure_Software;H04L5A-> Vergelijkende_studie_van_Imperatieve_Programmeertalen;H03F0A-> Technisch_wetenschappelijke_software;G0Q55A-> Fundamenten_van_mens_machine_interactie;G0Q66C-> Fundamenten_van_Computergrafiek;H03F7A-> Wavelets;}
+    
+InSemester<ct> = {H04I4A-> Eerste;G0G88A-> Jaar;H04K5A-> Eerste;H04L5A-> Eerste;H03F0A-> Eerste;G0Q55A-> Eerste;G0Q66C-> Eerste;H03F7A-> Eerste;}
+    
+MinAantalStudiepunten<ct> = {Master_in_de_Toegepaste_Informatica-> 38;Software_ontwikkeling_en_Gedistribueerde_Systemen-> 0;Multimedia-> 0;Algemeen_Vormend-> 0;Verdere-> 0;}
+    
+MaxAantalStudiepunten<ct> = {Master_in_de_Toegepaste_Informatica-> 42;Software_ontwikkeling_en_Gedistribueerde_Systemen-> 0;Multimedia-> 0;Algemeen_Vormend-> 0;Verdere-> 0;}
+    
+AantalStudiepunten<ct> = {H04I4A-> 6;G0G88A-> 18;H04K5A-> 4;H04L5A-> 6;H03F0A-> 6;G0Q55A-> 6;G0Q66C-> 3;H03F7A-> 6;}
+    
+    NietGeselecteerd = {}
+}

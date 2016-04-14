@@ -27,13 +27,13 @@ vocabulary V {
     type Slot isa int
     type Les
     
-   	heeftLes(Vak,Les)
-    isSchaduwVak(Vak,Vak)
-    start(Les,Slot)
-    eindigt(Les,Slot)
-    overlap(Les,Les) : int
+   	HeeftLes(Vak,Les)
+    //isSchaduwVak(Vak,Vak)
+    Start(Les,Slot)
+    Eindigt(Les,Slot)
+    Overlap(Les,Les) : Slot
+    Totaal : Slot
 }
-
 
 theory T : V {
      //ISP
@@ -50,19 +50,22 @@ theory T : V {
     !v[Vak] : NietGeselecteerd(v) => ~?f[Fase] : Geselecteerd(v,f).
     
     //SCHEDULE
-    !v1[Vak],v2[Vak],l[Les] : isSchaduwVak(v1,v2) & heeftLes(v1,l) => heeftLes(v2,l).
-    !l1[Les],l2[Les] : l1 = l2 => overlap(l1,l2) = 0.
-    !l1[Les],l2[Les],v1[Vak],v2[Vak] : l1 ~= l2 & (?f1[Fase],f2[Fase] : Geselecteerd(v1,f1) & Geselecteerd(v2,f2) ) => overlap(l1,l2) = max{ o : o = 0 | o = (min{e[Slot] : eindigt(l1,e) | eindigt(l2,e) : e} - max{s[Slot] : start(l1,s) | start(l2,s) : s}) : o}.
+    //!v1[Vak],v2[Vak],l[Les] : IsSchaduwVak(v1,v2) & HeeftLes(v1,l) => HeeftLes(v2,l).
+    !l1[Les],l2[Les] : l1 = l2 => Overlap(l1,l2) = 0.
+    !l1[Les],l2[Les],v1[Vak],v2[Vak] : l1 ~= l2 & (?f1[Fase],f2[Fase] : Geselecteerd(v1,f1) & Geselecteerd(v2,f2) ) => Overlap(l1,l2) = max{ o : o = 0 | o = (min{e[Slot] : Eindigt(l1,e) | Eindigt(l2,e) : e} - max{s[Slot] : Start(l1,s) | Start(l2,s) : s}) : o}.
+    Totaal = sum{ l1[Les],l2[Les],o : Overlap(l1,l2) = o : o }.
+    //!v1[Vak] : (?v2[Vak] : IsSchaduwVak(v1,v2)) => ~?f[Fase] : Geselecteerd(v1,f).
 }
 
 Term O : V {
-    sum{ l1[Les],l2[Les],o : overlap(l1,l2) = o : o }
+    Totaal
 }
 
 Structure S : V {
     //ISP
     Fase = {1..1}
 Vak = {H04I4A;G0G88A;H04K5A;H04L5A;H03F0A;G0Q55A;G0Q66C;H03F7A;}
+//IsSchaduwVak = {H0N08A,H04I4A;}
     
 VakNaam = {Gedistribueerde_Systemen;Masterproef;Development_of_Secure_Software;Vergelijkende_studie_van_Imperatieve_Programmeertalen;Technisch_wetenschappelijke_software;Fundamenten_van_mens_machine_interactie;Fundamenten_van_Computergrafiek;Wavelets;}
     
@@ -90,17 +93,22 @@ AantalStudiepunten<ct> = {H04I4A-> 6;G0G88A-> 18;H04K5A-> 4;H04L5A-> 6;H03F0A-> 
     
 	//SCHEDULE
 	Les = { 53305395; 53308390; 53311983; 53311984; 53324884; 53354279; 53355514; 53355550; 53533480 }
-	Slot = { 1..130 }
-	eindigt = { 53305395,42; 53308390,120; 53311983,124; 53311984,72; 53324884,109; 53354279,36; 53355514,36; 53355550,36; 53533480,93 }
-	heeftLes = { G0Q55A,53311983; G0Q66C,53311984; H03F0A,53324884; H04I4A,53305395; H04I4A,53354279; H04I4A,53355514; H04I4A,53355550; H04K5A,53308390; H04K5A,53533480; }
-	start = { 53305395,37; 53308390,116; 53311983,116; 53311984,68; 53324884,105; 53354279,31; 53355514,31; 53355550,31; 53533480,89 }
+	Slot = { 0..130 }
+	Eindigt = { 53305395,42; 53308390,120; 53311983,124; 53311984,72; 53324884,109; 53354279,36; 53355514,36; 53355550,36; 53533480,93 }
+	HeeftLes = { G0Q55A,53311983; G0Q66C,53311984; H03F0A,53324884; H04I4A,53305395; H04I4A,53354279; H04I4A,53355514; H04I4A,53355550; H04K5A,53308390; H04K5A,53533480; }
+	Start = { 53305395,37; 53308390,116; 53311983,116; 53311984,68; 53324884,105; 53354279,31; 53355514,31; 53355550,31; 53533480,89 }
+    
+    Geselecteerd<ct> = {}
+    NietGeselecteerd = {}
 }
 
 
 procedure main() {
     stdoptions.nbmodels = 0
-    sols = modelexpand(T,S)
-    print(#sols)
+    //sols = modelexpand(T,S)
+    //print(#sols)
+    //printmodels(sols)
     //printmodels(modelexpand(T,S))
-    //print(minimize(T,S,O)[0])
+    print(minimize(T,S,O)[1])
+    //explainunsat(T,S)
 }
