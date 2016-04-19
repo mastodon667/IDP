@@ -1,7 +1,6 @@
 vocabulary V {
     type Fase isa int
     type Vak
-    type VakNaam
     type VakGroepType constructed from {AVO,Verdere_Specialisatie,Opleiding,Bachelor_Verbredend,Specialisatie}
     type VakGroep 
     type Studiepunten isa int
@@ -14,7 +13,6 @@ vocabulary V {
     Geselecteerd(Vak,Fase)
 	NietGeselecteerd(Vak)
     
-    HeeftNaam(Vak):VakNaam
     MinAantalStudiepunten(VakGroep):Studiepunten
     MaxAantalStudiepunten(VakGroep):Studiepunten
     AantalStudiepunten(Vak):Studiepunten
