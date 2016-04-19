@@ -1,0 +1,84 @@
+vocabulary V {
+    type Fase isa int
+    type Vak
+    type VakGroep
+    type VakSet
+    type KeuzeGroep
+    type Keuze
+    type Studiepunten isa int
+    type Semester constructed from {Eerste,Tweede,Jaar}
+    
+    Verplicht(Vak,VakGroep)
+    InVakGroep(Vak,VakGroep)
+    InVakGroep(VakGroep,VakGroep)
+    InKeuzeGroep(Keuze,KeuzeGroep)
+    VerbondenMetKeuze(VakGroep,Keuze)
+    VerbondenMetKeuze(KeuzeGroep,Keuze)
+    InVakSet(Vak,VakSet)
+    InFase(Vak,Fase)
+    Geselecteerd(Vak,Fase)
+	NietGeselecteerd(Vak)
+    Geselecteerd(Keuze)
+    //VoorwaardeNiveau(Vak,Diploma)
+    //VoorwaardeSoepel(Vak,Vak) 
+    VoorwaardeGelijk(Vak,Vak)
+    VoorwaardeStrict(Vak,Vak)
+    
+    MinAantalStudiepunten(VakGroep):Studiepunten
+    MaxAantalStudiepunten(VakGroep):Studiepunten
+    AantalStudiepunten(Vak):Studiepunten
+    GeselecteerdAantalStudiepuntenPerVakGroep(VakGroep):Studiepunten
+    GeselecteerdAantalStudiepuntenPerSemester(Semester,Fase):Studiepunten
+    GeselecteerdAantalStudiepuntenTotaal : Studiepunten
+    VerschilPerFase(Fase) : Studiepunten
+    AbsoluutVerschilPerFase(Fase) : Studiepunten
+    InSemester(Vak):Semester
+    Evenwicht : Studiepunten
+}
+
+
+theory T : V {
+    !vg[VakGroep],v[Vak] : Verplicht(v,vg) & (~?k[Keuze] : VerbondenMetKeuze(vg,k)) => ?1f[Fase] : InFase(v,f) & Geselecteerd(v,f). 
+    
+    !vg[VakGroep],v[Vak] : Verplicht(v,vg) & (?k[Keuze] : VerbondenMetKeuze(vg,k) & Geselecteerd(k)) => ?1f[Fase] : InFase(v,f) & Geselecteerd(v,f). 
+        
+    !vg[VakGroep] : (~?k[Keuze] : VerbondenMetKeuze(vg,k)) & MaxAantalStudiepunten(vg) > 0 => MinAantalStudiepunten(vg) =< GeselecteerdAantalStudiepuntenPerVakGroep(vg) =< MaxAantalStudiepunten(vg).
+    
+    !vg[VakGroep] : (?k[Keuze] : VerbondenMetKeuze(vg,k) & Geselecteerd(k)) & MaxAantalStudiepunten(vg) > 0 => MinAantalStudiepunten(vg) =< GeselecteerdAantalStudiepuntenPerVakGroep(vg) =< MaxAantalStudiepunten(vg).
+    
+    !kg[KeuzeGroep] : (~?k[Keuze] : VerbondenMetKeuze(kg,k)) => ?1k1[Keuze] : InKeuzeGroep(k1,kg) & Geselecteerd(k1).
+    
+    !kg[KeuzeGroep] : (?k[Keuze] : Geselecteerd(k) & VerbondenMetKeuze(kg,k)) => ?1k1[Keuze] : InKeuzeGroep(k1,kg) & Geselecteerd(k1).
+    
+    !kg[KeuzeGroep] : (?k[Keuze] : VerbondenMetKeuze(kg,k) & ~Geselecteerd(k)) => ~?k1[Keuze] : InKeuzeGroep(k1,kg) & Geselecteerd(k1).
+    
+    !v1[Vak],v2[Vak] : ?f1[Fase] : Geselecteerd(v1,f1) & VoorwaardeGelijk(v1,v2) => (?f2[Fase] : Geselecteerd(v,f2) & f2 =< f1).
+    
+    !v1[Vak],v2[Vak] : ?f1[Fase] : Geselecteerd(v1,f1) & VoorwaardeStrict(v1,v2) => (?f2[Fase] : Geselecteerd(v,f2) & f2 < f1).
+    
+    !v[Vak] : ?vs[VakSet] : InVakSet(v,vs) & (?f[Fase] : Geselecteerd(v,f)) => ~?v1[Vak] : v1 ~= v & InVakSet(v1,vs) & (?f[Fase] : Geselecteerd(v1,f)).
+    
+    !f[Fase] : 60 =< sum{v[Vak],s[Studiepunten] : Geselecteerd(v,f) & AantalStudiepunten(v)=s : s} =< 66.
+   	
+    !vg[VakGroep] : GeselecteerdAantalStudiepuntenPerVakGroep(vg) = sum{v[Vak], vg1[VakGroep], sp[Studiepunten],f[Fase] : (InVakGroep(v,vg) | (InVakGroep(vg1,vg) & InVakGroep(v,vg1))) & Geselecteerd(v,f) & AantalStudiepunten(v)=sp : sp }.
+    
+    !s[Semester],f[Fase] : GeselecteerdAantalStudiepuntenPerSemester(s,f) = sum{v[Vak],sp[Studiepunten] : InSemester(v)=s & Geselecteerd(v,f) & AantalStudiepunten(v)=sp : sp}.
+   
+    !v[Vak] : NietGeselecteerd(v) => ~?f[Fase] : Geselecteerd(v,f).
+    
+    GeselecteerdAantalStudiepuntenTotaal = sum{v s f : Geselecteerd(v,f) & AantalStudiepunten(v) = s : s}.
+    
+    !f[Fase] : VerschilPerFase(f) = sum{ sp[Studiepunten] : GeselecteerdAantalStudiepuntenPerSemester(Eerste,f)=sp : sp } - sum{ sp[Studiepunten] : GeselecteerdAantalStudiepuntenPerSemester(Tweede,f)=sp : sp }.
+   	
+    !f[Fase] : abs(VerschilPerFase(f)) = AbsoluutVerschilPerFase(f).
+    
+    Evenwicht = sum{f sp : AbsoluutVerschilPerFase(f) = sp : sp}.
+}
+
+procedure main() {
+    //stdoptions.nbmodels = 1
+    //sols = modelexpand(T,S)
+    //print(#sols)
+    //printmodels(sols)
+    //printmodels(modelexpand(T,S))
+}
