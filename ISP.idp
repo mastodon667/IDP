@@ -82,10 +82,10 @@ vocabulary V_out {
 procedure main() {
     stdoptions.nbmodels = 0
     //printmodels(modelexpand(T,S))
-    //sols = modelexpand(T,S)
+    sols = modelexpand(T,S,V_out)
     //print(#sols.." solutions found.")
-    //printmodels(sols)
-    print(minimize(T,S,T2)[1])
+    printmodels(sols)
+    //print(minimize(T,S,T2)[1])
     //models = modelexpand(T,S)
     //print(query(Q,models[1]))
     //print(sat(T,S))
