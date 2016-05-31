@@ -1,5 +1,6 @@
 structure S : V {
     Fase = {1..1}
+    AantalVakken = {0..33}
 Vak = {H04I4A;G0G88A;H04K5A;H04L5A;G0K32A;H09B5A;H03F0A;H04L2A;H04G4A;H04I0A;G0Q55A;G0Q66C;H04I2A;G0B36A;H07Z5A;H03F7A;H05B9B;H02A5A;H09J2A;H02D2A;H02C1A;H02C8A;H02A8A;H0T25A;H02B1A;G0B34B;H02C3A;H02C6A;G0B23A;G0B01A;D0I69A;G0K34A;C07I6A;}
 VakGroep = {Master_in_de_Toegepaste_Informatica;Algemeen_Vormend;Verdere;Software_ontwikkeling_en_Gedistribueerde_Systemen;Multimedia;Artificiele_Intelligentie;}
 Studiepunten = {-66..66}
@@ -11,6 +12,4 @@ InSemester<ct> = {H04I4A-> Eerste;G0G88A-> Jaar;H04K5A-> Eerste;H04L5A-> Eerste;
 MinAantalStudiepunten<ct> = {Master_in_de_Toegepaste_Informatica-> 60;Software_ontwikkeling_en_Gedistribueerde_Systemen-> 0;Multimedia-> 0;Artificiele_Intelligentie-> 0;Verdere-> 0;Algemeen_Vormend-> 0;}
 MaxAantalStudiepunten<ct> = {Master_in_de_Toegepaste_Informatica-> 66;Software_ontwikkeling_en_Gedistribueerde_Systemen-> 0;Multimedia-> 0;Artificiele_Intelligentie-> 0;Verdere-> 0;Algemeen_Vormend-> 0;}
 AantalStudiepunten<ct> = {H04I4A-> 6;G0G88A-> 18;H04K5A-> 4;H04L5A-> 6;G0K32A-> 3;H09B5A-> 6;H03F0A-> 6;H04L2A-> 4;H04G4A-> 4;H04I0A-> 5;G0Q55A-> 6;G0Q66C-> 3;H04I2A-> 4;G0B36A-> 4;H07Z5A-> 3;H03F7A-> 6;H05B9B-> 3;H02A5A-> 4;H09J2A-> 6;H02D2A-> 4;H02C1A-> 4;H02C8A-> 4;H02A8A-> 4;H0T25A-> 3;H02B1A-> 4;G0B34B-> 6;H02C3A-> 4;H02C6A-> 4;G0B23A-> 6;G0B01A-> 4;D0I69A-> 6;G0K34A-> 4;C07I6A-> 4;}
-    Geselecteerd<ct> = {}
-NietGeselecteerd = {}
 }
